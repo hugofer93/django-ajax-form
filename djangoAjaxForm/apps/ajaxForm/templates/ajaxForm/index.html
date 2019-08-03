@@ -1,0 +1,23 @@
+{% extends 'ajaxForm/base.html' %}
+
+
+{% block content %}
+      <h4 class="text-center">Django Application for handling forms with Ajax and Class-Based Views.</h4>
+      <br>
+      <ul class="list-group">
+        <li class="list-group-item list-group-item-info">
+          click in 'create' to add new Person
+        </li>
+        <li class="list-group-item list-group-item-info">
+          click in 'list' to see all the Persons
+        </li>
+      </ul>
+      <br>
+      <h4 class="text-center">Menu:</h4>
+
+      <div class="list-group">
+        <a href="{% url 'ajaxform:create' %}" class="list-group-item list-group-item-action text-center">Create</a>
+        <a href="{% url 'ajaxform:list' %}" class="list-group-item list-group-item-action text-center">List</a>
+      </div>
+{% endblock %}
+    

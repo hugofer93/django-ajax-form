@@ -1,0 +1,112 @@
+{% extends 'ajaxForm/base.html' %}
+{% load static %}
+
+
+{% block css %}
+    <link rel="stylesheet" href="{% static 'css/bootstrap-datepicker.min.css' %}">
+{% endblock %}
+  
+
+{% block content %}
+      <div class="alert alert-danger" id="alertErrors" hidden="true" role="alert"></div>
+      <br>
+      <form onsubmit="event.preventDefault();">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="name">Name</label>
+          <input type="name" class="form-control" id="name" name="name" placeholder="Enter name" value="{{ object.name|default:'' }}">
+        </div>
+        
+        <div class="form-group">
+          <label for="surname">Surname</label>
+          <input type="text" class="form-control" id="surname" name="surname" placeholder="Enter surname" value="{{ object.surname|default:'' }}">
+        </div>
+        
+        <div class="form-group">
+          <label for="nickname">Nickname</label>
+          <input type="text" class="form-control" id="nickname" name="nickname" aria-describedby="nicknameHelp" placeholder="Enter nickname" value="{{ object.nickname|default:'' }}">
+          <small id="nicknameHelp" class="form-text text-muted">The nickname is unique.</small>
+        </div>
+
+        <div class="form-group">
+          <label for="birthDay">Bith Date</label>
+          <input 
+                type="text"
+                class="form-control"
+                id="birthDay"
+                name="birthDay"
+                placeholder="Select birth date"
+                aria-describedby="birthDayHelp"
+                data-provide="datepicker"
+                value="{{ object.birthDay|default:''|date:'m/d/Y' }}">
+          <small id="birthDayHelp" class="form-text text-muted">The birth day is optional.</small>
+        </div>
+
+        <button type="submit" id="submit" class="btn btn-success">Update</button>
+        <a href="{% url 'ajaxform:list' %}" class="btn btn-secondary">Back</a>
+      </form>
+{% endblock %}
+
+
+{% block js %}
+    <script src="{% static 'js/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static 'js/axios.min.js' %}"></script>
+    <script>
+      $('#submit').click(function (e){
+        var alertErrors = $('#alertErrors');
+        var submit = e.target;
+        submit.disabled = true;
+
+        var csrfmiddlewaretoken = $('input[name="csrfmiddlewaretoken"]').val();
+        var name = $('#name').val();
+        var surname = $('#surname').val();
+        var nickname = $('#nickname').val();
+        var birthDay = $('#birthDay').val();
+
+        var data = new URLSearchParams();
+        data.append('csrfmiddlewaretoken', csrfmiddlewaretoken);
+        data.append('name', name);
+        data.append('surname', surname);
+        data.append('nickname', nickname);
+        data.append('birthDay', birthDay);
+
+        axios({
+        method: 'post',
+        url: '{{ obsject.get_absolute_url }}',
+        data: data,
+        xsrfCookieName: 'csrftoken',
+        xsrfHeaderName: 'X-CSRFToken',
+        headers: {
+          'cache-control':  'no-cache',
+          'content-type':   'application/x-www-form-urlencoded'
+          }
+        })
+        .then(function (response) {
+          console.log(response.status);
+          if (response.status === 200) {
+            alertErrors.attr('hidden', 'true');
+            alert('Person successfully updated!');
+            window.location.replace('{% url "ajaxform:list" %}');
+          }
+        })
+        .catch(function (error) {
+          console.log(error.response.status);
+          alertErrors.html('');
+          var strError = '';
+          var errors = JSON.parse(error.response.data);
+          for (var err in errors) {
+
+            for (var e in errors[err]) {
+              strError += '<p>' + err + ': ' + errors[err][e] + '</p>';
+            }
+            
+          }
+          alertErrors.html(strError);
+          alertErrors.removeAttr('hidden');
+          submit.disabled = false;
+        });
+
+      });
+    </script>
+{% endblock %}
+  
