@@ -1,0 +1,21 @@
+{% extends 'myapp/base.html' %}
+
+
+{% block content %}
+      <div class="list-group">
+        
+        {% for object in object_list %}
+        <a href="{{ object.get_absolute_url }}" class="list-group-item list-group-item-action">
+          {{ object }}
+        </a>
+        {% endfor %}
+
+      </div>
+
+      <br><br>
+
+      <div class="container text-center">
+        <a href="{% url 'myapp:create' %}" class="btn btn-success">Add Person</a>
+        <a href="{% url 'myapp:index' %}" class="btn btn-info">Index</a>
+      </div>
+{% endblock %}
